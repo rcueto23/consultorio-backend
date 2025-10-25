@@ -46,66 +46,7 @@ PORT=3001
 NODE_ENV=development
 ```
 
-**Cómo obtener las credenciales de Supabase:**
-
-1. Ve a [Supabase Dashboard](https://supabase.com/dashboard)
-2. Selecciona tu proyecto
-3. Ve a **Settings** > **Database**
-4. Copia el **Connection string** en modo "Transaction" (puerto 6543) para `DATABASE_URL`
-5. Copia el **Connection string** en modo "Session" (puerto 5432) para `DIRECT_URL`
-6. Reemplaza `[YOUR-PASSWORD]` con tu contraseña de base de datos
-
-### 3. Crear las tablas en la base de datos
-
-Opción 1: Usar el script automatizado (recomendado)
-
-```bash
-npm run db:setup
-```
-
-Opción 2: Ejecutar manualmente en Supabase SQL Editor
-
-Ve a tu proyecto en Supabase > SQL Editor y ejecuta:
-
-```sql
-CREATE TABLE IF NOT EXISTS users (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  nombre VARCHAR(100) NOT NULL,
-  apellido VARCHAR(100) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = TIMEZONE('utc'::text, NOW());
-  RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-DROP TRIGGER IF EXISTS update_users_updated_at ON users;
-
-CREATE TRIGGER update_users_updated_at
-  BEFORE UPDATE ON users
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Enable all operations for authenticated users" ON users;
-
-CREATE POLICY "Enable all operations for authenticated users" ON users
-  FOR ALL
-  USING (true)
-  WITH CHECK (true);
-```
-
-### 4. Generar el cliente de Prisma
+### 3. Generar el cliente de Prisma
 
 ```bash
 npm run prisma:generate
@@ -247,39 +188,6 @@ npm run db:setup       # Crear tablas en la base de datos
 npm run prisma:generate # Generar cliente de Prisma
 ```
 
-## 🗂️ Estructura del Proyecto
-
-```
-consultorio-backend/
-├── prisma/
-│   └── schema.prisma        # Esquema de base de datos
-├── scripts/
-│   └── setup-database.ts    # Script para crear tablas
-├── src/
-│   ├── auth/               # Módulo de autenticación
-│   │   ├── dto/           # Data Transfer Objects
-│   │   ├── guards/        # Guards de NestJS
-│   │   ├── interfaces/    # Interfaces TypeScript
-│   │   ├── strategies/    # Estrategias de Passport
-│   │   ├── auth.controller.ts
-│   │   ├── auth.service.ts
-│   │   └── auth.module.ts
-│   ├── prisma/            # Módulo de Prisma
-│   │   ├── prisma.service.ts
-│   │   └── prisma.module.ts
-│   ├── app.controller.ts
-│   ├── app.service.ts
-│   ├── app.module.ts
-│   └── main.ts            # Punto de entrada
-├── test/                  # Tests e2e
-├── .env                   # Variables de entorno (no commitear)
-├── .env.example           # Ejemplo de variables de entorno
-├── .gitignore
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
 ## 🔒 Seguridad
 
 ### Validación de Datos
@@ -334,9 +242,6 @@ npm run db:setup
 
 O ejecuta el SQL manualmente en Supabase SQL Editor (ver sección de instalación).
 
-## 📝 Licencia
-
-Este proyecto es privado y no tiene licencia pública.
 
 ## 👨‍💻 Desarrollado con
 
@@ -346,5 +251,3 @@ Este proyecto es privado y no tiene licencia pública.
 - Supabase
 
 ---
-
-**Nota:** Este es un proyecto educativo para gestión de consultorio psicológico. No compartir credenciales de producción.
