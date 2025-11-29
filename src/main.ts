@@ -7,7 +7,7 @@ async function bootstrap() {
 
   // Habilitar CORS para el frontend
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: ['http://clases-frontend-2xdbjv-934649-142-93-27-36.traefik.me', 'http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
