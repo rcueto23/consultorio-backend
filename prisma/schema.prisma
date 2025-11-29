@@ -39,5 +39,26 @@ model Paciente {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
+  citas         Cita[]
+
   @@map("pacientes")
+}
+
+model Cita {
+  id          String   @id @default(uuid()) @db.Uuid
+  pacienteId  String   @map("paciente_id") @db.Uuid
+  fecha       DateTime
+  duracion    Int      @default(60) // duración en minutos
+  estado      String   @default("pendiente") // pendiente, completada, cancelada, en_curso
+  motivo      String?
+  notas       String?  // Para futuro: expandir a historia clínica
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  paciente    Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+
+  @@map("citas")
+  @@index([pacienteId])
+  @@index([fecha])
+  @@index([estado])
 }
